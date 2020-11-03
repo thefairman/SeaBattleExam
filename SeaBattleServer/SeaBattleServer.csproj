@@ -15,4 +15,8 @@
     <Folder Include="Abstract\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SeaBattleGame\SeaBattleGame.csproj" />
+  </ItemGroup>
+
 </Project>
