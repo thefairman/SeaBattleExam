@@ -141,6 +141,7 @@ namespace SeaBattleServer.GameLogic
             var validateResult = ValidateFiled(_field);
             if (validateResult.Error)
                 return validateResult;
+            Field = new CellStatus[10, 10];
             for (int i = 0; i < 10; i++)
             {
                 for (int j = 0; j < 10; j++)
