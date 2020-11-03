@@ -6,35 +6,57 @@ using System.Timers;
 
 namespace SeaBattleServer.GameLogic
 {
-    class LastShootedPlayer
-    {
-        public Player Player { get; set; }
-        public DateTime Time { get; set; } = DateTime.Now;
-    }
-
     class SeaBattleField
     {
         public CellStatus[,] Field { get; private set; } = null;
-        bool ValidateFiled(int[,] field)
+        GameAnswer ValidateFiled(int[,] field)
         {
-            int[,] _shipsCount = { { 1, 2, 3, 4 }, { 4, 3, 2, 1 } };
             Dictionary<int, int> ships = new Dictionary<int, int>();
-
             for (int i = 0; i < field.GetLength(0); i++)
             {
                 for (int j = 0; j < field.GetLength(1); j++)
                 {
                     if (field[i, j] == 1)
                     {
-                        // check horizontal orientation of ship
-                        if (i < field.GetLength(0) - 1)
-                        {
-                            if (field[i + 1, j] == 1)
-                        }
+                        var shipRank = MarkFindedShip(field, i, j);
+                        if (CheckCollisions(field, i, j))
+                            return new GameAnswer("Есть коллизия кораблей!", true);
+                        if (ships.ContainsKey(shipRank))
+                            ships[shipRank]++;
+                        else
+                            ships.Add(shipRank, 1);
                     }
                 }
             }
 
+            bool error = false;
+            foreach (var item in ships)
+            {
+                switch (item.Key)
+                {
+                    case 1:
+                        if (item.Value != 4)
+                            error = true;
+                        break;
+                    case 2:
+                        if (item.Value != 3)
+                            error = true;
+                        break;
+                    case 3:
+                        if (item.Value != 2)
+                            error = true;
+                        break;
+                    case 4:
+                        if (item.Value != 1)
+                            error = true;
+                        break;
+                    default:
+                        return new GameAnswer("Есть корабль с некоректным количеством палуб!", true);
+                }
+                if (error)
+                    return new GameAnswer("Не корректное количество кораблей!", true);
+            }
+            return new GameAnswer("ok", false);
         }
 
         int MarkFindedShip(int[,] field, int i, int j)
@@ -98,10 +120,45 @@ namespace SeaBattleServer.GameLogic
             }
             return false;
         }
+
+        public GameAnswer SetField(int[,] field)
+        {
+            if (Field != null)
+                return new GameAnswer("Поле уже установленно!", true);
+            if (field.GetLongLength(0) != 10 || field.GetLongLength(1) != 10)
+                return new GameAnswer("Не корректный размер поля, должен быть 10х10!", true);
+            int[,] _field = new int[10, 10];
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    _field[i, j] = field[i, j];
+                }
+            }
+            var validateResult = ValidateFiled(_field);
+            if (validateResult.Error)
+                return validateResult;
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 0; j < 10; j++)
+                {
+                    if (field[i, j] == 1)
+                        Field[i, j] = CellStatus.Ship;
+                    else
+                        Field[i, j] = CellStatus.Empty;
+                }
+            }
+            return validateResult;
+        }
     }
 
     public class SeaBattleGame : GameBase
     {
+        class LastShootedPlayer
+        {
+            public Player Player { get; set; }
+            public DateTime Time { get; set; } = DateTime.Now;
+        }
         int _moveWaitMsTime = 120000;
         Dictionary<Player, SeaBattleField> _fields = new Dictionary<Player, SeaBattleField>();
         LastShootedPlayer _lastShootedPlayer;
