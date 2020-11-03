@@ -57,7 +57,7 @@ namespace GameLogic.Test
                                 { 1,0,0,0,0,0,0,0,0,0},
                                 { 1,0,1,1,0,1,1,0,0,0},};
             var res = field.SetField(fieldSet);
-            Assert.IsTrue(res.Error);
+            Assert.IsFalse(res.Error);
         }
     }
 }

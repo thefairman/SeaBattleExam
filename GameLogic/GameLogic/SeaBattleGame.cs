@@ -84,7 +84,7 @@ namespace SeaBattleServer.GameLogic
             {
                 if (field[i, j + 1] == 1)
                 {
-                    for (int k = j + 1; k < field.GetLength(1) && field[i, j] == 1; k++)
+                    for (int k = j + 1; k < field.GetLength(1) && field[i, k] == 1; k++)
                     {
                         field[i, k] = 2;
                         ++shipRank;
