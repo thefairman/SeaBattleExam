@@ -1,8 +1,11 @@
 ﻿using SeaBattleGame;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Timers;
+
+[assembly: InternalsVisibleTo("GameLogic.Test")]
 
 namespace SeaBattleServer.GameLogic
 {
