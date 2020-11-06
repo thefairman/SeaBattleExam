@@ -6,9 +6,8 @@ namespace SeaBattleServer.GameLogic
 {
     interface IGame
     {
-        public int GameId { get; }
-        public Player RoomOwner { get; }
-
-        bool JoinToGame(Player player);
+        int GameId { get; }
+        Player RoomOwner { get; }
+        event EventHandler<GameEventArgs> GameEvent;
     }
 }

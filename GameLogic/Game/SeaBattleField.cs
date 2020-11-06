@@ -163,7 +163,7 @@ namespace SeaBattleServer.GameLogic
         /// </summary>
         /// <param name="row">Num of row filed</param>
         /// <param name="col">Num of col field</param>
-        /// <returns>Return ShootAnswer in Object or Message of error if Error is true
+        /// <returns>Return <see cref="ShootStatus"/> in Object or Message of error if Error is true
         /// </returns>
         public GameAnswer Shoot(int row, int col)
         {
@@ -178,19 +178,19 @@ namespace SeaBattleServer.GameLogic
             if (Field[row, col] == CellStatus.Empty)
             {
                 Field[row, col] = CellStatus.Strelano;
-                return new GameAnswer(new ShootAnswer(ShootStatus.Miss, GetFieldForEnemy()));
+                return new GameAnswer(ShootStatus.Miss);
             }
 
             Field[row, col] = CellStatus.Popal;
             if (CheckForKill(row, col))
             {
                 if (ChekForWin())
-                    return new GameAnswer(new ShootAnswer(ShootStatus.Win, GetFieldForEnemy()));
+                    return new GameAnswer(ShootStatus.Win);
                 else
-                    return new GameAnswer(new ShootAnswer(ShootStatus.Kill, GetFieldForEnemy()));
+                    return new GameAnswer(ShootStatus.Kill);
             }
             else
-                return new GameAnswer(new ShootAnswer(ShootStatus.Hit, GetFieldForEnemy()));
+                return new GameAnswer(ShootStatus.Hit);
         }
 
         bool ChekForWin()

@@ -78,15 +78,16 @@ namespace GameLogic.Test
                                 { 1,0,1,1,0,1,1,0,0,0},};
             field.SetUnsafeMyField(fieldSet);
             var res = field.Shoot(0,0);
+            var enemyField = field.GetFieldForEnemy();
             for (int i = 0; i < 10; i++)
             {
                 for (int j = 0; j < 10; j++)
                 {
-                    Debug.Write(((int)((ShootAnswer)res.Object).EnemyField[i, j]));
+                    Debug.Write((int)enemyField[i, j]);
                 }
                 Debug.WriteLine("");
             }
-            Assert.AreEqual(((ShootAnswer)res.Object).ShootStatus, ShootStatus.Kill);
+            Assert.AreEqual((ShootStatus)res.Object, ShootStatus.Kill);
         }
 
         [TestMethod]
@@ -105,7 +106,7 @@ namespace GameLogic.Test
                                 { 4,0,4,4,0,4,4,0,0,0},};
             field.SetUnsafeMyField(fieldSet);
             var res = field.Shoot(0, 0);
-            Assert.AreEqual(((ShootAnswer)res.Object).ShootStatus, ShootStatus.Win);
+            Assert.AreEqual((ShootStatus)res.Object, ShootStatus.Win);
         }
 #endif
     }
