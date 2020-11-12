@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SeaBattleServer.GameLogic
 {
@@ -24,7 +25,7 @@ namespace SeaBattleServer.GameLogic
     }
 
     public enum GameStatus { WaitForPlayers, InGame, Done }
-    public enum GameResult { Win, Loose, Forward, None }
+    public enum GameResult { Win, Lose, Forward, None }
     public class GameEventArgs : EventArgs
     {
         public GameListing Game { get; set; }
@@ -37,7 +38,6 @@ namespace SeaBattleServer.GameLogic
         protected List<Player> players = new List<Player>();
         protected int _minPlayers, _maxPlayers;
         public GameStatus GameStatus { get; protected set; } = GameStatus.WaitForPlayers;
-        public GameResult GameResult { get; protected set; } = GameResult.None;
         public GameListing CurrentGame { get; }
         public Player RoomOwner => players?[0];
 
@@ -52,24 +52,24 @@ namespace SeaBattleServer.GameLogic
             _maxPlayers = maxPlayers;
             CurrentGame = currentGame;
         }
-        object joinLocker = new object();
+        object _joinLock = new object();
         public void JoinToGame(Player player)
         {
-            lock (joinLocker)
+            lock (_joinLock)
             {
                 if (players.Contains(player))
                 {
-                    SendEvent(player, new GameAnswer("Вы уже в этой игре!"));
+                    SendEventAsync(player, new GameAnswer("Вы уже в этой игре!"));
                     return;
                 }
                 if (GameStatus != GameStatus.WaitForPlayers)
                 {
-                    SendEvent(player, new GameAnswer("Данная комната не ждет подключения!"));
+                    SendEventAsync(player, new GameAnswer("Данная комната не ждет подключения!"));
                     return;
                 }
                 if (players.Count >= _maxPlayers)
                 {
-                    SendEvent(player, new GameAnswer("Достигнуто максимальное количество игроков!"));
+                    SendEventAsync(player, new GameAnswer("Достигнуто максимальное количество игроков!"));
                     return;
                 }
                 players.Add(player);
@@ -77,9 +77,9 @@ namespace SeaBattleServer.GameLogic
             OnJoin(player);
         }
 
-        protected void SendEvent(Player player, GameAnswer gameAnswer)
+        protected Task SendEventAsync(Player player, GameAnswer gameAnswer)
         {
-            GameEvent?.Invoke(this, new GameEventArgs { Game = CurrentGame, Message = gameAnswer, Player = player });
+            return Task.Run(()=>GameEvent?.Invoke(this, new GameEventArgs { Game = CurrentGame, Message = gameAnswer, Player = player }));
         }
 
         protected abstract void OnJoin(Player player);
@@ -88,23 +88,41 @@ namespace SeaBattleServer.GameLogic
         {
             if (GameStatus != GameStatus.WaitForPlayers)
             {
-                SendEvent(player, new GameAnswer("Игра должна быть в состоянии ожидания игроков, чтобы запуститься!"));
+                SendEventAsync(player, new GameAnswer("Игра должна быть в состоянии ожидания игроков, чтобы запуститься!"));
                 return;
             }
             if (player != RoomOwner)
             {
-                SendEvent(player, new GameAnswer("Запустить игру может только владелец комнаты!"));
+                SendEventAsync(player, new GameAnswer("Запустить игру может только владелец комнаты!"));
                 return;
             }
             if (players.Count < _minPlayers)
             {
-                SendEvent(player, new GameAnswer("Недостаточное колличество игроков!"));
+                SendEventAsync(player, new GameAnswer("Недостаточное колличество игроков!"));
                 return;
             }
             GameStatus = GameStatus.InGame;
             OnStartGame();
         }
 
+        protected bool CheckPlayerInThisGame(Player player)
+        {
+            if (!players.Contains(player))
+            {
+                SendEventAsync(player, new GameAnswer("Вас нет в этой игре!"));
+                return false;
+            }
+            return true;
+        }
+
         protected abstract void OnStartGame();
+
+        public void GetGameInfo(Player player)
+        {
+            if (!CheckPlayerInThisGame(player))
+            OnGameInfo(player);
+        }
+
+        protected abstract void OnGameInfo(Player player); 
     }
 }

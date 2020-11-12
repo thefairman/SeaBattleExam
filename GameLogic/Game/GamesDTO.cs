@@ -28,7 +28,7 @@ namespace SeaBattleServer.GameLogic
         }
     }
 
-    public enum SeaBattleActionType { PlayerJoins, FillField, Move }
+    public enum SeaBattleActionType { PlayerJoins, FillField, Move, Info }
     public class SeaBattleGameData
     {
         public int GameId { get; set; }
