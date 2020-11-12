@@ -43,4 +43,19 @@ namespace SeaBattleServer.GameLogic
         public DateTime? LastMoveTime { get; set; }
         public int MillisecondsForNextMove { get; set; }
     }
+
+    public enum SeaBattleRoomActionType { RoomCreated, GetListRooms }
+    public class SeaBattleRoomData
+    {
+        public int RoomId { get; set; }
+        public SeaBattleRoomActionType ActionType { get; set; }
+        public object ActionResult { get; set; }
+    }
+
+    public class SeaBattleRoomListItem
+    {
+        public int RoomId { get; set; }
+        public int Players { get; set; }
+        public string RoomOwner { get; set; }
+    }
 }

@@ -77,6 +77,8 @@ namespace SeaBattleServer.GameLogic
             OnJoin(player);
         }
 
+        public int PlayersCount => players.Count;
+
         protected Task SendEventAsync(Player player, GameAnswer gameAnswer)
         {
             return Task.Run(()=>GameEvent?.Invoke(this, new GameEventArgs { Game = CurrentGame, Message = gameAnswer, Player = player }));

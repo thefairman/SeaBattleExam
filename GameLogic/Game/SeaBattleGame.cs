@@ -24,7 +24,6 @@ namespace SeaBattleServer.GameLogic
         Timer IDLEChecker;
         Random _random = new Random();
         SeaBattleGameStatus _seaBattleGameStatus = SeaBattleGameStatus.WaitToFillFields;
-        //SeaBattleGameData lastMessage;
         public SeaBattleGame(int gameId, Player player)
             : base(gameId, player, GameListing.SeaBattle, 2, 2)
         {
@@ -36,7 +35,7 @@ namespace SeaBattleServer.GameLogic
 
         object _moveLock = new object();
 
-        public Player LastShootedPlayer
+        Player LastShootedPlayer
         {
             get => _lastShootedPlayer;
             set
@@ -110,9 +109,7 @@ namespace SeaBattleServer.GameLogic
             lock (_moveLock)
             {
                 if (!CheckPlayerInThisGame(player))
-                {
                     return;
-                }
                 if (_fields[player]?.Field != null)
                 {
                     SendEventAsync(player, new GameAnswer("Вы уже сделали расстановку кораблей!"));
